@@ -312,7 +312,7 @@ th,td{padding:8px;border-bottom:1px solid #ddd;}
   <input id="fee" type="number" placeholder="Fee">
   <input id="due" type="date">
 
-  <button onclick="addStudent()">Add Student</button>
+  <button id="addStudentBtn">Add Student</button>
   <button onclick="downloadReport()">⬇ Download Excel</button>
   <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImport(event)">
   <button class="import-file-btn" onclick="document.getElementById('importFile').click()">📂 Import from Excel</button>
@@ -509,19 +509,47 @@ async function loadStudents(){
 }
 
 async function addStudent(){
-  let student = {
-    name:   document.getElementById('name').value,
-    phone:  cleanPhone(document.getElementById('phone').value),
-    course: document.getElementById('course').value,
-    fee:    document.getElementById('fee').value,
-    due:    document.getElementById('due').value,
-    paid:   false
-  };
-  await addDoc(studentsCol(), student);
-  document.querySelectorAll('input[id]').forEach(i => {
-    if(['name','phone','course','fee','due'].includes(i.id)) i.value = '';
-  });
-  loadStudents();
+  // Guard — must be logged in and tenant resolved
+  if(!tenantId){
+    alert('Not ready yet. Please wait a moment and try again.');
+    return;
+  }
+
+  let name   = document.getElementById('name').value.trim();
+  let phone  = document.getElementById('phone').value.trim();
+  let course = document.getElementById('course').value.trim();
+  let fee    = document.getElementById('fee').value.trim();
+  let due    = document.getElementById('due').value.trim();
+
+  if(!name)  { alert('Please enter student name.'); return; }
+  if(!phone) { alert('Please enter parent phone number.'); return; }
+  if(!fee)   { alert('Please enter fee amount.'); return; }
+  if(!due)   { alert('Please select a due date.'); return; }
+
+  let addBtn = document.getElementById('addStudentBtn');
+  if(addBtn){ addBtn.disabled=true; addBtn.textContent='Adding...'; }
+
+  try {
+    let student = {
+      name,
+      phone:  cleanPhone(phone),
+      course: course || 'General',
+      fee,
+      due,
+      paid: false
+    };
+    await addDoc(studentsCol(), student);
+    ['name','phone','course','fee','due'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    showToast('Student added successfully!');
+    loadStudents();
+  } catch(e){
+    alert('Error adding student: ' + e.message);
+    console.error('addStudent error:', e);
+  } finally {
+    if(addBtn){ addBtn.disabled=false; addBtn.textContent='Add Student'; }
+  }
 }
 
 async function markPaid(id){
@@ -842,15 +870,34 @@ async function logout(){
   window.location.href='demo-login.html';
 }
 
-// Expose to inline HTML onclick
-window.addStudent=addStudent; window.markPaid=markPaid; window.deleteStudent=deleteStudent;
-window.editStudent=editStudent; window.sendReminder=sendReminder; window.sendReminders=sendReminders;
-window.sendReceipt=sendReceipt; window.downloadReport=downloadReport; window.render=render;
-window.logout=logout; window.setDashFilter=setDashFilter; window.saveRemark=saveRemark;
-window.voidFee=voidFee; window.undoVoid=undoVoid;
-window.showUpdateDueModal=showUpdateDueModal; window.closeUpdateDueModal=closeUpdateDueModal;
+// Expose all functions to global scope immediately
+// (functions themselves are safe to expose — they guard internally via tenantId check)
+window.addStudent=addStudent;
+
+// Attach Add Student button via event listener (more reliable than inline onclick)
+document.addEventListener('DOMContentLoaded', () => {
+  let btn = document.getElementById('addStudentBtn');
+  if(btn) btn.addEventListener('click', addStudent);
+});
+window.markPaid=markPaid;
+window.deleteStudent=deleteStudent;
+window.editStudent=editStudent;
+window.sendReminder=sendReminder;
+window.sendReminders=sendReminders;
+window.sendReceipt=sendReceipt;
+window.downloadReport=downloadReport;
+window.render=render;
+window.logout=logout;
+window.setDashFilter=setDashFilter;
+window.saveRemark=saveRemark;
+window.voidFee=voidFee;
+window.undoVoid=undoVoid;
+window.showUpdateDueModal=showUpdateDueModal;
+window.closeUpdateDueModal=closeUpdateDueModal;
 window.confirmUpdateDue=confirmUpdateDue;
-window.handleImport=handleImport; window.closeImportModal=closeImportModal; window.confirmImport=confirmImport;
+window.handleImport=handleImport;
+window.closeImportModal=closeImportModal;
+window.confirmImport=confirmImport;
 
 </script>
 
