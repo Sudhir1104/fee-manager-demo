@@ -118,6 +118,13 @@ th{background:#f5f5f5;font-weight:600;}
   .card{padding:12px 8px;font-size:13px;}
   button{padding:13px 10px;font-size:15px;min-height:48px;}
   input{font-size:16px!important;min-height:48px;padding:12px;}
+  input[type=date]{
+    width:100%!important;
+    max-width:100%!important;
+    padding-left:160px!important;
+    box-sizing:border-box!important;
+    overflow:hidden;
+  }
   .mobile-card{padding:16px;}
   .mobile-card button{margin:4px 0;min-height:44px;}
   .modal{width:95%;max-height:90vh;padding:18px;border-radius:16px;}
@@ -166,7 +173,13 @@ th{background:#f5f5f5;font-weight:600;}
   <input type="tel"    id="inp_phone"  placeholder="Parent Phone (10 digits)">
   <input type="text"   id="inp_course" placeholder="Course">
   <input type="number" id="inp_fee"    placeholder="Fee Amount">
-  <input type="date"   id="inp_due">
+  <div style="position:relative;width:100%;margin:5px 0;">
+    <label for="inp_due" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none;z-index:1;white-space:nowrap;">&#128197; Calendar Due Date</label>
+    <input type="date" id="inp_due"
+      style="padding-left:160px;width:100%;min-height:48px;font-size:15px;box-sizing:border-box;"
+      onfocus="this.previousElementSibling.style.opacity='0'"
+      onblur="if(!this.value)this.previousElementSibling.style.opacity='1'">
+  </div>
   <button id="btnAdd" onclick="addStudent()">&#10133; Add Student</button>
 
   <button onclick="downloadReport()">&#11015; Download CSV</button>
