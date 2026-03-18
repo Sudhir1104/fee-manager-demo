@@ -12,238 +12,79 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="https://placehold.co/192x192/2d89ef/ffffff?text=FM">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase COMPAT — plain script, no module needed -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-
 *{box-sizing:border-box;}
+body{font-family:'DM Sans',Arial,sans-serif;background:#eef2f7;margin:0;padding:20px;}
 
-body{
-  font-family:'DM Sans',Arial,sans-serif;
-  background:#eef2f7;
-  margin:0;
-  padding:20px;
-}
+.expiry-banner{border-radius:10px;padding:13px 18px;margin-bottom:16px;font-size:13px;font-weight:500;display:none;align-items:center;gap:10px;flex-wrap:wrap;}
+.expiry-banner.warning{display:flex;background:#fff7ed;border:1.5px solid #fed7aa;color:#9a3412;}
+.expiry-banner.danger{display:flex;background:#fef2f2;border:1.5px solid #fecaca;color:#991b1b;}
+.expiry-banner.expired{display:flex;background:#1e1e1e;color:white;justify-content:center;text-align:center;padding:20px;font-size:15px;flex-direction:column;}
+.expiry-banner.expired a{display:inline-block;margin-top:10px;padding:10px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:600;}
 
-/* ── Expiry Banner ── */
-.expiry-banner{
-  display:none;
-  border-radius:10px;
-  padding:13px 18px;
-  margin-bottom:16px;
-  font-size:13px;
-  font-weight:500;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.expiry-banner.warning{
-  background:#fff7ed;
-  border:1.5px solid #fed7aa;
-  color:#9a3412;
-}
-
-.expiry-banner.danger{
-  background:#fef2f2;
-  border:1.5px solid #fecaca;
-  color:#991b1b;
-}
-
-.expiry-banner.expired{
-  background:#1e1e1e;
-  border:none;
-  color:white;
-  justify-content:center;
-  text-align:center;
-  padding:20px;
-  font-size:15px;
-  flex-direction:column;
-}
-
-.expiry-banner.expired a{
-  display:inline-block;
-  margin-top:10px;
-  padding:10px 24px;
-  background:#2563eb;
-  color:white;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:600;
-  font-size:14px;
-}
-
-/* ── Header ── */
-.header{
-  border-radius:10px;
-  padding:15px 20px;
-  margin-bottom:20px;
-  color:white;
-  background:#2d89ef; /* overridden by tenant colour if set */
-}
-
-.logo-row{
-  display:flex;align-items:center;gap:15px;flex:1;
-}
-
-.header-row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-}
-
-.logout-btn{
-  background:rgba(255,255,255,0.2);color:white;
-  border:1px solid rgba(255,255,255,0.5);
-  padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;
-  white-space:nowrap;
-}
+.header{border-radius:10px;padding:15px 20px;margin-bottom:20px;color:white;background:#2d89ef;}
+.logo-row{display:flex;align-items:center;gap:15px;flex:1;}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logout-btn{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.5);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;margin:0;}
 .logout-btn:hover{background:rgba(255,255,255,0.35);}
-
 .user-info{font-size:12px;opacity:0.85;text-align:right;}
-
 .logo-row img{height:70px;object-fit:contain;background:white;border-radius:6px;padding:4px;}
 .title-block h1{margin:0;font-size:22px;}
 .title-block h2{margin:0;font-size:15px;opacity:0.9;}
 
-/* ── Container ── */
-.container{
-  max-width:1000px;margin:auto;background:white;padding:20px;
-  border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,0.15);
-  display:none;
-}
+.container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,0.15);display:none;}
 
-input,button{
-  padding:10px;margin:5px 0;width:100%;
-  box-sizing:border-box;border-radius:6px;border:1px solid #ccc;
-}
-
+input,button{padding:10px;margin:5px 0;width:100%;box-sizing:border-box;border-radius:6px;border:1px solid #ccc;font-family:'DM Sans',Arial,sans-serif;font-size:14px;}
 button{background:#2d89ef;color:white;border:none;cursor:pointer;}
 button:hover{background:#1b5fbf;}
+button:disabled{background:#93c5fd;cursor:not-allowed;}
 .reminder-btn{background:#e53935;}
+.reminder-btn:hover{background:#b71c1c;}
 .overdue{color:#e53935;font-weight:bold;}
-.disabled-btn{background:#ccc;color:#666;padding:6px 10px;border-radius:5px;}
-
-.void-btn{
-  background:#7b1fa2;color:white;padding:6px 10px;
-  border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:bold;
-}
+.disabled-btn{display:inline-block;background:#ccc;color:#666;padding:6px 10px;border-radius:5px;font-size:12px;}
+.void-btn{background:#7b1fa2;color:white;padding:6px 10px;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:bold;}
 .void-btn:hover{background:#4a0072;}
-.undo-void-btn{
-  background:#ff9800;color:white;padding:6px 10px;
-  border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:bold;
-}
+.undo-void-btn{background:#ff9800;color:white;padding:6px 10px;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:bold;}
 .undo-void-btn:hover{background:#e65100;}
 .void-status{color:#7b1fa2;font-weight:bold;}
 
 .dashboard{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-.card{
-  flex:1;background:#2d89ef;color:white;padding:15px;
-  border-radius:8px;text-align:center;cursor:pointer;
-  transition:all 0.2s;user-select:none;
-}
-.card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2);opacity:0.92;}
-.card.active-filter{outline:3px solid white;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.25);}
-.card#students{background:#2d89ef;}
-.card#collected{background:#2e7d32;}
-.card#pending{background:#e65100;}
-.card#overdue{background:#c62828;}
+.card{flex:1;color:white;padding:15px;border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s;user-select:none;}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2);}
+.card.active-filter{outline:3px solid white;transform:translateY(-2px);}
+#cardStudents{background:#2d89ef;}
+#cardCollected{background:#2e7d32;}
+#cardPending{background:#e65100;}
+#cardOverdue{background:#c62828;}
 
 .filter-label{text-align:center;font-size:12px;color:#888;margin-bottom:8px;font-style:italic;display:none;}
 .filter-label.visible{display:block;}
 
 table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{padding:8px;border-bottom:1px solid #ddd;}
+th,td{padding:8px;border-bottom:1px solid #ddd;font-size:13px;}
+th{background:#f5f5f5;font-weight:600;}
 
-.mobile-card{background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.mobile-card{background:#f8f8f8;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
 .mobile-list{display:none;}
 
-.search-wrapper{position:relative;margin-bottom:15px;width:100%;}
-.search-wrapper input{padding-left:38px;border:2px solid #2d89ef;font-size:15px;margin:0;}
+.search-wrapper{position:relative;margin-bottom:15px;}
+.search-wrapper input{padding-left:38px;border:2px solid #2d89ef;font-size:15px;margin:0;width:100%;}
 .search-wrapper input:focus{outline:none;border-color:#1b5fbf;box-shadow:0 0 0 3px rgba(45,137,239,0.15);}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#2d89ef;font-size:16px;pointer-events:none;}
 .no-results{text-align:center;color:#999;padding:20px;font-style:italic;}
 
-@media(max-width:700px){
-  body{ padding:10px; }
-
-  table{display:none}
-  .mobile-list{display:block}
-
-  .logo-row{flex-direction:column;text-align:center;}
-
-  /* Header tighter on mobile */
-  .header{ padding:12px 14px; }
-  .title-block h1{ font-size:17px; }
-  .title-block h2{ font-size:13px; }
-  .logo-row img{ height:50px; }
-
-  /* Dashboard cards 2x2 grid on mobile */
-  .dashboard{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-  }
-  .card{ padding:12px 8px; font-size:13px; }
-
-  /* Full width buttons, bigger tap targets */
-  button{ padding:13px 10px; font-size:15px; min-height:48px; }
-
-  /* Inputs easier to tap */
-  input[type=text],input[type=number],input[type=date],input[type=email],input[type=password]{
-    font-size:16px; /* prevents iOS zoom on focus */
-    min-height:48px;
-    padding:12px;
-  }
-
-  /* Mobile cards */
-  .mobile-card{ padding:16px; margin-bottom:12px; }
-  .mobile-card h3{ font-size:17px; margin-bottom:4px; }
-  .mobile-card button{ margin:4px 0; min-height:44px; }
-
-  /* Modal full screen on mobile */
-  .modal{
-    width:95%;
-    max-height:90vh;
-    padding:18px;
-    border-radius:16px;
-  }
-
-  /* Search bar */
-  .search-wrapper input{ font-size:16px; min-height:48px; }
-
-  /* Reminder button */
-  .reminder-btn{ font-size:14px; padding:13px; }
-
-  /* Container padding */
-  .container{ padding:14px; }
-}
-
-/* Safe area for iPhone notch/home bar */
-@supports(padding: max(0px)){
-  body{
-    padding-left: max(10px, env(safe-area-inset-left));
-    padding-right: max(10px, env(safe-area-inset-right));
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-}
-
-.footer{text-align:center;margin-top:20px;font-size:13px;color:#888;}
-.footer strong{color:#2d89ef;}
-
-/* Modals */
-.modal-overlay{
-  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;
-}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
 .modal-overlay.active{display:flex;}
-.modal{
-  background:white;border-radius:12px;padding:25px;
-  width:90%;max-width:700px;max-height:80vh;overflow-y:auto;
-  box-shadow:0 8px 30px rgba(0,0,0,0.2);
-}
+.modal{background:white;border-radius:12px;padding:25px;width:90%;max-width:700px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.2);}
 .modal h3{margin:0 0 15px 0;color:#2d89ef;}
-.modal-hint{
-  background:#f0f7ff;border:1px solid #c5e0fb;border-radius:6px;
-  padding:10px 14px;font-size:13px;color:#555;margin-bottom:15px;
-}
+.modal-hint{background:#f0f7ff;border:1px solid #c5e0fb;border-radius:6px;padding:10px 14px;font-size:13px;color:#555;margin-bottom:15px;}
 .modal-hint code{background:#ddeeff;padding:1px 5px;border-radius:3px;font-size:12px;}
 .import-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:15px;}
 .import-table th{background:#2d89ef;color:white;padding:8px;text-align:left;}
@@ -252,134 +93,134 @@ th,td{padding:8px;border-bottom:1px solid #ddd;}
 .modal-actions{display:flex;gap:10px;}
 .modal-actions button{flex:1;}
 .cancel-btn{background:#888!important;}
-.cancel-btn:hover{background:#666!important;}
-.import-btn-green{background:#2e7d32!important;}
-.import-btn-green:hover{background:#1b5e20!important;}
-.import-file-btn{background:#ff9800;}
-.import-file-btn:hover{background:#e65100!important;}
-.update-due-btn{background:#7b1fa2;}
-.update-due-btn:hover{background:#4a0072!important;}
+.cancel-btn:hover{background:#555!important;}
+.green-btn{background:#2e7d32!important;}
+.green-btn:hover{background:#1b5e20!important;}
+.orange-btn{background:#ff9800!important;}
+.orange-btn:hover{background:#e65100!important;}
+.purple-btn{background:#7b1fa2!important;}
+.purple-btn:hover{background:#4a0072!important;}
 
-/* Demo watermark */
-.demo-watermark{
-  position:fixed;bottom:12px;right:16px;
-  background:rgba(0,0,0,0.55);color:white;
-  font-size:11px;padding:5px 10px;border-radius:20px;
-  z-index:9999;pointer-events:none;letter-spacing:0.03em;
+.footer{text-align:center;margin-top:20px;font-size:13px;color:#888;}
+.footer strong{color:#2d89ef;}
+.demo-watermark{position:fixed;bottom:12px;right:16px;background:rgba(0,0,0,0.55);color:white;font-size:11px;padding:5px 10px;border-radius:20px;z-index:9999;pointer-events:none;}
+
+@media(max-width:700px){
+  body{padding:10px;}
+  table{display:none;}
+  .mobile-list{display:block;}
+  .logo-row{flex-direction:column;text-align:center;}
+  .header{padding:12px 14px;}
+  .title-block h1{font-size:17px;}
+  .title-block h2{font-size:13px;}
+  .logo-row img{height:50px;}
+  .dashboard{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .card{padding:12px 8px;font-size:13px;}
+  button{padding:13px 10px;font-size:15px;min-height:48px;}
+  input{font-size:16px!important;min-height:48px;padding:12px;}
+  .mobile-card{padding:16px;}
+  .mobile-card button{margin:4px 0;min-height:44px;}
+  .modal{width:95%;max-height:90vh;padding:18px;border-radius:16px;}
+  .container{padding:12px;}
 }
-
+@supports(padding:max(0px)){
+  body{
+    padding-left:max(10px,env(safe-area-inset-left));
+    padding-right:max(10px,env(safe-area-inset-right));
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+  }
+}
 </style>
 </head>
 <body>
 
-<!-- Expiry banner — shown dynamically -->
-<div id="expiryBanner"></div>
+<div id="expiryBanner" class="expiry-banner"></div>
 
 <div class="container" id="mainContainer">
-
-  <div class="header" id="appHeader">
+  <div class="header">
     <div class="header-row">
-      <div class="logo-row" id="logoRow">
-        <!-- Populated by tenant data -->
-      </div>
+      <div class="logo-row" id="logoRow"></div>
       <div style="text-align:right">
         <div class="user-info" id="userEmail"></div>
-        <button class="logout-btn" onclick="logout()">Sign Out</button>
+        <button class="logout-btn" onclick="doLogout()">Sign Out</button>
       </div>
     </div>
   </div>
 
   <div class="dashboard">
-    <div class="card" id="students" onclick="setDashFilter('all')">Students: 0</div>
-    <div class="card" id="collected" onclick="setDashFilter('paid')">Collected: ₹0</div>
-    <div class="card" id="pending" onclick="setDashFilter('pending')">Pending: ₹0</div>
-    <div class="card" id="overdue" onclick="setDashFilter('overdue')">Overdue: 0</div>
+    <div class="card" id="cardStudents"  onclick="setDashFilter('all')">Students: 0</div>
+    <div class="card" id="cardCollected" onclick="setDashFilter('paid')">Collected: &#8377;0</div>
+    <div class="card" id="cardPending"   onclick="setDashFilter('pending')">Pending: &#8377;0</div>
+    <div class="card" id="cardOverdue"   onclick="setDashFilter('overdue')">Overdue: 0</div>
   </div>
   <div class="filter-label" id="filterLabel"></div>
 
-  <button id="reminderButton" class="reminder-btn" onclick="sendReminders()">
-    📩 Send Fine Notice to All Overdue Students
-  </button>
+  <button class="reminder-btn" onclick="sendReminders()">&#128233; Send Fine Notice to All Overdue Students</button>
 
   <div class="search-wrapper">
-    <span class="search-icon">🔍</span>
-    <input id="searchInput" placeholder="Search student by name..." oninput="render()">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="searchInput" placeholder="Search student by name..." oninput="render()">
   </div>
 
-  <input id="name"   placeholder="Student Name">
-  <input id="phone"  placeholder="Parent Phone">
-  <input id="course" placeholder="Course">
-  <input id="fee" type="number" placeholder="Fee">
-  <input id="due" type="date">
+  <input type="text"   id="inp_name"   placeholder="Student Name">
+  <input type="tel"    id="inp_phone"  placeholder="Parent Phone (10 digits)">
+  <input type="text"   id="inp_course" placeholder="Course">
+  <input type="number" id="inp_fee"    placeholder="Fee Amount">
+  <input type="date"   id="inp_due">
+  <button id="btnAdd" onclick="addStudent()">&#10133; Add Student</button>
 
-  <button id="addStudentBtn">Add Student</button>
-  <button onclick="downloadReport()">⬇ Download Excel</button>
+  <button onclick="downloadReport()">&#11015; Download CSV</button>
   <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImport(event)">
-  <button class="import-file-btn" onclick="document.getElementById('importFile').click()">📂 Import from Excel</button>
-  <button class="update-due-btn" onclick="showUpdateDueModal()">📅 Update All Due Dates</button>
+  <button class="orange-btn" onclick="document.getElementById('importFile').click()">&#128194; Import from Excel</button>
+  <button class="purple-btn" onclick="showUpdateDueModal()">&#128197; Update All Due Dates</button>
 
-  <!-- Update Due Date Modal -->
+  <!-- Update Due Modal -->
   <div class="modal-overlay" id="updateDueModal">
     <div class="modal">
-      <h3>📅 Update Due Date for All Students</h3>
+      <h3>&#128197; Update Due Date for All Students</h3>
       <div class="modal-hint">Updates the due date for <strong>all students</strong> at once.</div>
       <div style="margin-bottom:15px;">
-        <label style="font-size:13px;font-weight:bold;color:#555;display:block;margin-bottom:6px;">Select New Due Date</label>
-        <input type="date" id="bulkDueDate" style="padding:10px;border:1.5px solid #2d89ef;border-radius:8px;font-size:15px;width:100%;">
+        <label style="font-size:13px;font-weight:bold;color:#555;display:block;margin-bottom:6px;">New Due Date</label>
+        <input type="date" id="bulkDueDate" style="font-size:15px;">
       </div>
       <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeUpdateDueModal()">✕ Cancel</button>
-        <button class="import-btn-green" onclick="confirmUpdateDue()">✅ Update All Students</button>
+        <button class="cancel-btn" onclick="closeUpdateDueModal()">&#10005; Cancel</button>
+        <button class="green-btn"  onclick="confirmUpdateDue()">&#10003; Update All</button>
       </div>
     </div>
   </div>
 
-  <!-- Import Preview Modal -->
+  <!-- Import Modal -->
   <div class="modal-overlay" id="importModal">
     <div class="modal">
-      <h3>📋 Preview Import</h3>
-      <div class="modal-hint">
-        Columns detected from your file.<br>
-        Expected: <code>Name</code> <code>Phone</code> <code>Course</code> <code>Fee</code> <code>Due</code>
-      </div>
+      <h3>&#128203; Preview Import</h3>
+      <div class="modal-hint">Expected columns: <code>Name</code> <code>Phone</code> <code>Course</code> <code>Fee</code> <code>Due</code></div>
       <div id="importPreview"></div>
       <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeImportModal()">✕ Cancel</button>
-        <button class="import-btn-green" onclick="confirmImport()">✅ Import All Students</button>
+        <button class="cancel-btn" onclick="closeImportModal()">&#10005; Cancel</button>
+        <button class="green-btn"  onclick="confirmImport()">&#10003; Import</button>
       </div>
     </div>
   </div>
 
   <table>
-    <thead>
-      <tr>
-        <th>Name</th><th>Phone</th><th>Course</th><th>Fee</th>
-        <th>Late</th><th>Total</th><th>Status</th><th>Actions</th>
-        <th>Reminder</th><th>Remark</th><th>Receipt</th>
-      </tr>
-    </thead>
-    <tbody id="table"></tbody>
+    <thead><tr>
+      <th>Name</th><th>Phone</th><th>Course</th><th>Fee</th>
+      <th>Late</th><th>Total</th><th>Status</th><th>Actions</th>
+      <th>Reminder</th><th>Remark</th><th>Receipt</th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
   </table>
 
   <div id="mobileList" class="mobile-list"></div>
-
-  <div class="footer">Powered by <strong>Fee Manager</strong> · Your data is private to your organisation</div>
+  <div class="footer">Powered by <strong>Fee Manager</strong> &middot; Your data is private to your organisation</div>
 </div>
 
-<!-- Demo watermark -->
 <div class="demo-watermark">Demo Trial</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, getDoc }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-// ── REPLACE with your demo Firebase config ──
-const firebaseConfig = {
+<script>
+// ── Firebase init ──
+var firebaseConfig = {
   apiKey: "AIzaSyCNFivl8UFbM5oA-oXXovUAp37wPZxjE6M",
   authDomain: "fee-manager-demo.firebaseapp.com",
   projectId: "fee-manager-demo",
@@ -387,454 +228,375 @@ const firebaseConfig = {
   messagingSenderId: "240717295816",
   appId: "1:240717295816:web:e610949997d4aa190bb5fd"
 };
+firebase.initializeApp(firebaseConfig);
+var db   = firebase.firestore();
+var auth = firebase.auth();
 
-const app  = initializeApp(firebaseConfig);
-const db   = getFirestore(app);
-const auth = getAuth(app);
+// ── State ──
+var tenantId     = null;
+var tenantData   = null;
+var students     = [];
+var currency     = '&#8377;';
+var lateFine     = 100;
+var dashFilter   = 'all';
+var importedRows = [];
 
-let tenantId   = null;
-let tenantData = null;
-let students   = [];
-let currency   = '₹';
-let lateFine   = 100;
-
-// ── Auth guard ──
-onAuthStateChanged(auth, async user => {
-  if(!user){
-    window.location.href = 'demo-login.html';
-    return;
-  }
-
+// ── Auth ──
+auth.onAuthStateChanged(function(user){
+  if(!user){ window.location.href='demo-login.html'; return; }
   document.getElementById('userEmail').textContent = user.email;
-
-  // Resolve tenant
   tenantId = sessionStorage.getItem('tenantId');
   if(!tenantId){
-    // Look up from users collection
-    let uSnap = await getDoc(doc(db, 'users', user.uid));
-    if(uSnap.exists()){
-      tenantId = uSnap.data().tenantId;
-      sessionStorage.setItem('tenantId', tenantId);
-    } else {
-      alert('Could not find your organisation. Please sign up again.');
-      await signOut(auth);
-      window.location.href = 'demo-login.html';
-      return;
-    }
-  }
-
-  // Load tenant settings
-  let tSnap = await getDoc(doc(db, 'tenants', tenantId));
-  if(!tSnap.exists()){
-    alert('Organisation not found.');
-    await signOut(auth);
-    window.location.href = 'demo-login.html';
-    return;
-  }
-
-  tenantData = tSnap.data();
-  currency   = tenantData.currency || '₹';
-  lateFine   = tenantData.lateFine || 100;
-
-  applyBranding(tenantData);
-  checkExpiry(tenantData.expiresAt);
-
-  document.getElementById('mainContainer').style.display = 'block';
-  loadStudents();
+    db.collection('users').doc(user.uid).get().then(function(uDoc){
+      if(uDoc.exists){
+        tenantId = uDoc.data().tenantId;
+        sessionStorage.setItem('tenantId', tenantId);
+        loadTenant();
+      } else {
+        alert('Organisation not found. Please sign up again.');
+        auth.signOut(); window.location.href='demo-login.html';
+      }
+    }).catch(function(e){ alert('Error: '+e.message); });
+  } else { loadTenant(); }
 });
 
-// ── White-label branding ──
-function applyBranding(t){
-  // Header logo + name
-  let logoHtml = t.logoUrl
-    ? `<img src="${t.logoUrl}" onerror="this.style.display='none'">`
-    : `<div style="width:60px;height:60px;background:rgba(255,255,255,0.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🏫</div>`;
-
-  document.getElementById('logoRow').innerHTML = `
-    ${logoHtml}
-    <div class="title-block">
-      <h1>${t.orgName}</h1>
-      <h2>Student Fee Manager</h2>
-    </div>
-  `;
-
-  document.title = t.orgName + ' — Fee Manager';
+function loadTenant(){
+  db.collection('tenants').doc(tenantId).get().then(function(tDoc){
+    if(!tDoc.exists){ alert('Organisation record missing.'); auth.signOut(); window.location.href='demo-login.html'; return; }
+    tenantData = tDoc.data();
+    currency   = tenantData.currency || '&#8377;';
+    lateFine   = tenantData.lateFine || 100;
+    applyBranding(tenantData);
+    checkExpiry(tenantData.expiresAt);
+    document.getElementById('mainContainer').style.display = 'block';
+    loadStudents();
+  }).catch(function(e){ alert('Error loading org: '+e.message); });
 }
 
-// ── Expiry check ──
+function applyBranding(t){
+  var logoHtml = t.logoUrl
+    ? '<img src="'+t.logoUrl+'" onerror="this.style.display=\'none\'" alt="logo">'
+    : '<div style="width:55px;height:55px;background:rgba(255,255,255,0.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;">&#127979;</div>';
+  document.getElementById('logoRow').innerHTML = logoHtml
+    + '<div class="title-block"><h1>'+t.orgName+'</h1><h2>Student Fee Manager</h2></div>';
+  document.title = t.orgName+' — Fee Manager';
+}
+
 function checkExpiry(expiresAt){
   if(!expiresAt) return;
-  let now     = new Date();
-  let expires = new Date(expiresAt);
-  let msLeft  = expires - now;
-  let daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
-
-  let banner = document.getElementById('expiryBanner');
-  banner.className = 'expiry-banner';
-
-  if(msLeft <= 0){
-    // Expired — block the app
-    banner.className = 'expiry-banner expired';
-    banner.style.display = 'flex';
-    banner.innerHTML = `
-      <div>⏰ Your 7-day demo has expired.</div>
-      <div style="font-size:13px;opacity:0.85;">Contact us to keep your data and upgrade to a full account.</div>
-      <a href="demo-signup.html">Start a new trial →</a>
-    `;
-    document.getElementById('mainContainer').style.display = 'none';
-  } else if(daysLeft <= 2){
-    banner.className = 'expiry-banner danger';
-    banner.style.display = 'flex';
-    banner.innerHTML = `⚠️ <strong>Your demo expires in ${daysLeft} day${daysLeft===1?'':'s'}.</strong> All data will be lost after expiry.`;
-  } else if(daysLeft <= 5){
-    banner.className = 'expiry-banner warning';
-    banner.style.display = 'flex';
-    banner.innerHTML = `⏳ Demo trial: <strong>${daysLeft} days remaining</strong>.`;
+  var now=new Date(), expires=new Date(expiresAt);
+  var msLeft=expires-now, daysLeft=Math.ceil(msLeft/86400000);
+  var banner=document.getElementById('expiryBanner');
+  if(msLeft<=0){
+    banner.className='expiry-banner expired';
+    banner.innerHTML='<div>Your 7-day demo has expired.</div><div style="font-size:13px;opacity:0.85">Contact us to upgrade.</div><a href="demo-signup.html">Start a new trial</a>';
+    document.getElementById('mainContainer').style.display='none';
+  } else if(daysLeft<=2){
+    banner.className='expiry-banner danger';
+    banner.innerHTML='&#9888; <strong>Demo expires in '+daysLeft+' day'+(daysLeft===1?'':'s')+'.</strong> Data will be lost after expiry.';
+  } else if(daysLeft<=5){
+    banner.className='expiry-banner warning';
+    banner.innerHTML='&#8987; Demo trial: <strong>'+daysLeft+' days remaining</strong>.';
   }
 }
 
-// ── Students collection path (tenant-scoped) ──
-function studentsCol(){
-  return collection(db, 'tenants', tenantId, 'students');
+function cleanPhone(p){
+  p=String(p).replace(/\D/g,'');
+  if(!p.startsWith('91')) p='91'+p;
+  return p;
 }
-function studentDoc(id){
-  return doc(db, 'tenants', tenantId, 'students', id);
-}
+function safeFee(v){ var n=parseInt(v); return isNaN(n)?0:n; }
 
-async function loadStudents(){
-  students = [];
-  let snap = await getDocs(studentsCol());
-  snap.forEach(d => { let data = d.data(); data.id = d.id; students.push(data); });
-  render();
-}
-
-async function addStudent(){
-  // Guard — must be logged in and tenant resolved
-  if(!tenantId){
-    alert('Not ready yet. Please wait a moment and try again.');
-    return;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t){
+    t=document.createElement('div'); t.id='toast';
+    t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#2d89ef;color:white;padding:10px 22px;border-radius:30px;font-size:14px;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
   }
+  t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },2500);
+}
 
-  let name   = document.getElementById('name').value.trim();
-  let phone  = document.getElementById('phone').value.trim();
-  let course = document.getElementById('course').value.trim();
-  let fee    = document.getElementById('fee').value.trim();
-  let due    = document.getElementById('due').value.trim();
+// ── Load students ──
+function loadStudents(){
+  db.collection('tenants').doc(tenantId).collection('students').get()
+    .then(function(snap){
+      students=[];
+      snap.forEach(function(d){ var data=d.data(); data.id=d.id; students.push(data); });
+      render();
+    }).catch(function(e){ alert('Error loading students: '+e.message); });
+}
 
-  if(!name)  { alert('Please enter student name.'); return; }
-  if(!phone) { alert('Please enter parent phone number.'); return; }
-  if(!fee)   { alert('Please enter fee amount.'); return; }
-  if(!due)   { alert('Please select a due date.'); return; }
-
-  let addBtn = document.getElementById('addStudentBtn');
-  if(addBtn){ addBtn.disabled=true; addBtn.textContent='Adding...'; }
-
-  try {
-    let student = {
-      name,
-      phone:  cleanPhone(phone),
-      course: course || 'General',
-      fee,
-      due,
-      paid: false
-    };
-    await addDoc(studentsCol(), student);
-    ['name','phone','course','fee','due'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    showToast('Student added successfully!');
+// ── Add student ──
+function addStudent(){
+  if(!tenantId){ alert('Still loading. Please wait a moment.'); return; }
+  var name   = document.getElementById('inp_name').value.trim();
+  var phone  = document.getElementById('inp_phone').value.trim();
+  var course = document.getElementById('inp_course').value.trim();
+  var fee    = document.getElementById('inp_fee').value.trim();
+  var due    = document.getElementById('inp_due').value.trim();
+  if(!name)  { alert('Please enter student name.');         return; }
+  if(!phone) { alert('Please enter parent phone number.');  return; }
+  if(!fee)   { alert('Please enter fee amount.');           return; }
+  if(!due)   { alert('Please select a due date.');          return; }
+  var btn=document.getElementById('btnAdd');
+  btn.disabled=true; btn.textContent='Adding...';
+  db.collection('tenants').doc(tenantId).collection('students').add({
+    name:name, phone:cleanPhone(phone), course:course||'General', fee:fee, due:due, paid:false
+  }).then(function(){
+    document.getElementById('inp_name').value='';
+    document.getElementById('inp_phone').value='';
+    document.getElementById('inp_course').value='';
+    document.getElementById('inp_fee').value='';
+    document.getElementById('inp_due').value='';
+    showToast('Student added!');
     loadStudents();
-  } catch(e){
-    alert('Error adding student: ' + e.message);
-    console.error('addStudent error:', e);
-  } finally {
-    if(addBtn){ addBtn.disabled=false; addBtn.textContent='Add Student'; }
-  }
+  }).catch(function(e){
+    alert('Failed to add student: '+e.message);
+    console.error(e);
+  }).finally(function(){
+    btn.disabled=false; btn.textContent='+ Add Student';
+  });
 }
 
-async function markPaid(id){
-  let receipt = 'RCPT-' + Date.now();
-  let date    = new Date().toISOString().slice(0,10);
-  await updateDoc(studentDoc(id), { paid:true, receiptNumber:receipt, paidDate:date });
-  alert('Payment recorded. Receipt No: ' + receipt);
-  loadStudents();
+// ── Mark paid ──
+function markPaid(id){
+  var receipt='RCPT-'+Date.now(), date=new Date().toISOString().slice(0,10);
+  db.collection('tenants').doc(tenantId).collection('students').doc(id)
+    .update({paid:true,receiptNumber:receipt,paidDate:date})
+    .then(function(){ alert('Payment recorded!\nReceipt: '+receipt); loadStudents(); })
+    .catch(function(e){ alert('Error: '+e.message); });
 }
 
-async function deleteStudent(id){
+// ── Delete ──
+function deleteStudent(id){
   if(!confirm('Delete this student?')) return;
-  await deleteDoc(studentDoc(id));
-  loadStudents();
+  db.collection('tenants').doc(tenantId).collection('students').doc(id).delete()
+    .then(function(){ showToast('Deleted.'); loadStudents(); })
+    .catch(function(e){ alert('Error: '+e.message); });
 }
 
-async function editStudent(id){
-  let s = students.find(x => x.id === id);
-  let newPhone = prompt('Edit phone', s.phone);
-  let newFee   = prompt('Edit fee', s.fee);
-  await updateDoc(studentDoc(id), { phone:cleanPhone(newPhone), fee:newFee });
-  loadStudents();
-}
-
-async function voidFee(id){
-  let s = students.find(x => x.id === id);
+// ── Edit ──
+function editStudent(id){
+  var s=students.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(!confirm(`Void fee for ${s.name} this month?`)) return;
-  await updateDoc(studentDoc(id), {
-    voided: true, voidedDate: new Date().toISOString().slice(0,10), paid: false
-  });
-  showToast('✕ Fee voided for ' + s.name);
-  loadStudents();
+  var newPhone=prompt('Edit phone:',s.phone); if(newPhone===null) return;
+  var newFee=prompt('Edit fee:',s.fee);       if(newFee===null)   return;
+  db.collection('tenants').doc(tenantId).collection('students').doc(id)
+    .update({phone:cleanPhone(newPhone),fee:newFee})
+    .then(function(){ showToast('Updated.'); loadStudents(); })
+    .catch(function(e){ alert('Error: '+e.message); });
 }
 
-async function undoVoid(id){
-  let s = students.find(x => x.id === id);
-  if(!s) return;
-  if(!confirm(`Undo void for ${s.name}?`)) return;
-  await updateDoc(studentDoc(id), { voided:false, voidedDate:null });
-  showToast('↺ Void removed for ' + s.name);
-  loadStudents();
+// ── Void ──
+function voidFee(id){
+  var s=students.find(function(x){ return x.id===id; }); if(!s) return;
+  if(!confirm('Void fee for '+s.name+'?')) return;
+  db.collection('tenants').doc(tenantId).collection('students').doc(id)
+    .update({voided:true,voidedDate:new Date().toISOString().slice(0,10),paid:false})
+    .then(function(){ showToast('Fee voided.'); loadStudents(); })
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+function undoVoid(id){
+  var s=students.find(function(x){ return x.id===id; }); if(!s) return;
+  if(!confirm('Undo void for '+s.name+'?')) return;
+  db.collection('tenants').doc(tenantId).collection('students').doc(id)
+    .update({voided:false,voidedDate:null})
+    .then(function(){ showToast('Void removed.'); loadStudents(); })
+    .catch(function(e){ alert('Error: '+e.message); });
 }
 
-async function saveRemark(id, remark){
-  let s = students.find(x => x.id === id);
-  if(!s || s.remark === remark) return;
-  s.remark = remark;
-  await updateDoc(studentDoc(id), { remark });
-  showToast('Remark saved ✓');
+// ── Remark ──
+function saveRemark(id,remark){
+  var s=students.find(function(x){ return x.id===id; }); if(!s||s.remark===remark) return;
+  s.remark=remark;
+  db.collection('tenants').doc(tenantId).collection('students').doc(id)
+    .update({remark:remark})
+    .then(function(){ showToast('Remark saved.'); })
+    .catch(function(e){ console.error(e); });
 }
 
-function cleanPhone(phone){
-  phone = phone.replace(/\D/g,'');
-  if(!phone.startsWith('91')) phone = '91' + phone;
-  return phone;
-}
-
+// ── WhatsApp ──
 function sendReminder(phone,name,total){
-  phone = cleanPhone(phone);
-  let message =
-    `Dear Parent,\n\nThis is a reminder that the fee for *${name}* is overdue.\n\n` +
-    `Fee: ${currency}${total-lateFine}\nLate Fine: ${currency}${lateFine}\nTotal Due: ${currency}${total}\n\n` +
-    `Please make payment immediately.\n\n${tenantData.orgName}`;
-  window.open('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(message),'_blank');
+  phone=cleanPhone(phone);
+  var org=tenantData?tenantData.orgName:'Fee Manager';
+  var msg='Dear Parent,\n\nFee for *'+name+'* is overdue.\n\nFee: '+currency+(total-lateFine)+'\nLate Fine: '+currency+lateFine+'\nTotal Due: '+currency+total+'\n\nPlease pay immediately.\n\n'+org;
+  window.open('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg),'_blank');
 }
-
 function sendReceipt(phone,name,amount,receipt,date){
-  phone = cleanPhone(phone);
-  let message =
-    `${tenantData.orgName}\n\nRECEIPT\n\nReceipt No: ${receipt}\nStudent: ${name}\n` +
-    `Amount Paid: ${currency}${amount}\nDate: ${date}\n\nThank you for your payment.`;
-  window.open('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(message),'_blank');
+  phone=cleanPhone(phone);
+  var org=tenantData?tenantData.orgName:'Fee Manager';
+  var msg=org+'\n\nRECEIPT\nReceipt No: '+receipt+'\nStudent: '+name+'\nAmount: '+currency+amount+'\nDate: '+date+'\n\nThank you.';
+  window.open('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg),'_blank');
 }
-
 function sendReminders(){
-  let count = 0;
-  students.forEach(s => {
-    if(!s.voided && !s.paid && new Date() > new Date(s.due)){
-      sendReminder(s.phone, s.name, parseInt(s.fee)+lateFine);
-      count++;
-    }
+  var count=0;
+  students.forEach(function(s){
+    if(!s.voided&&!s.paid&&new Date()>new Date(s.due)){ sendReminder(s.phone,s.name,safeFee(s.fee)+lateFine); count++; }
   });
-  if(count === 0) alert('No overdue students found.');
+  if(count===0) alert('No overdue students found.');
 }
 
+// ── CSV ──
 function downloadReport(){
-  let csv = 'Name,Phone,Course,Fee,Due,Status\n';
-  students.forEach(s => {
-    csv += `${s.name},${s.phone},${s.course},${s.fee},${s.due},${s.paid?'Paid':'Pending'}\n`;
+  var csv='Name,Phone,Course,Fee,Due,Status\n';
+  students.forEach(function(s){
+    var st=s.voided?'Void':s.paid?'Paid':'Pending';
+    csv+=s.name+','+s.phone+','+s.course+','+s.fee+','+s.due+','+st+'\n';
   });
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv]));
-  a.download = 'fees.csv'; a.click();
-}
-
-function render(){
-  let tbody  = document.getElementById('table');
-  let mobile = document.getElementById('mobileList');
-  tbody.innerHTML = '';
-  mobile.innerHTML = '';
-
-  let query    = document.getElementById('searchInput').value.trim().toLowerCase();
-  let filtered = students;
-  if(query) filtered = filtered.filter(s => s.name.toLowerCase().includes(query));
-
-  if(window.dashFilter && window.dashFilter !== 'all'){
-    if(window.dashFilter === 'paid')    filtered = filtered.filter(s => s.paid);
-    if(window.dashFilter === 'pending') filtered = filtered.filter(s => !s.paid);
-    if(window.dashFilter === 'overdue') filtered = filtered.filter(s => {
-      if(s.paid) return false;
-      return new Date() > new Date(s.due);
-    });
-  }
-
-  if(filtered.length === 0 && query){
-    tbody.innerHTML  = `<tr><td colspan="11" class="no-results">No student found matching "${query}"</td></tr>`;
-    mobile.innerHTML = `<div class="no-results">No student found matching "${query}"</div>`;
-  }
-
-  function safeFee(v){ let n=parseInt(v); return isNaN(n)?0:n; }
-
-  let overdueCount=0, collected=0, pending=0;
-  students.forEach(s => {
-    let lf = 0;
-    if(s.voided){}
-    else if(!s.paid && new Date()>new Date(s.due)){ lf=lateFine; overdueCount++; pending+=safeFee(s.fee)+lf; }
-    else if(s.paid){ collected+=safeFee(s.fee); }
-    else { pending+=safeFee(s.fee); }
-  });
-
-  filtered.forEach(s => {
-    let today = new Date(), due = new Date(s.due);
-    let lf=0, status='Pending';
-    if(s.voided){ status='Void'; }
-    else if(!s.paid && today>due){ lf=lateFine; status='Overdue'; }
-    else if(s.paid){ status='Paid'; }
-    let total = s.voided ? 0 : safeFee(s.fee)+lf;
-
-    let dueFormatted  = s.due  ? new Date(s.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-    let paidFormatted = s.paidDate ? new Date(s.paidDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
-
-    let reminder = s.voided
-      ? '<span class="disabled-btn">Voided</span>'
-      : s.paid
-        ? '<span class="disabled-btn">Paid</span>'
-        : `<button onclick="sendReminder('${s.phone}','${s.name}','${total}')">Reminder</button>`;
-
-    let receipt = s.paid
-      ? `<button onclick="sendReceipt('${s.phone}','${s.name}','${total}','${s.receiptNumber||'N/A'}','${s.paidDate||''}')">Resend Receipt</button>`
-      : '';
-
-    tbody.innerHTML += `
-<tr>
-<td>
-  <strong>${s.name}</strong>
-  <div style="font-size:11px;color:#888;margin-top:2px;">Due: ${dueFormatted}</div>
-  ${s.paid&&paidFormatted?`<div style="font-size:11px;color:#2e7d32;margin-top:1px;">✅ Paid: ${paidFormatted}</div>`:''}
-  ${status==='Overdue'?`<div style="font-size:11px;font-weight:bold;color:white;background:#c62828;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px;">⚠ OVERDUE</div>`:''}
-  ${status==='Pending'?`<div style="font-size:11px;color:#e65100;margin-top:2px;">⏳ Payment pending</div>`:''}
-  ${status==='Void'?`<div style="font-size:11px;font-weight:bold;color:white;background:#7b1fa2;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px;">✕ VOID</div>`:''}
-</td>
-<td>${s.phone}</td>
-<td>${s.course}</td>
-<td>${currency}${s.fee}</td>
-<td>${currency}${lf}</td>
-<td>${currency}${total}</td>
-<td class="${status==='Overdue'?'overdue':status==='Void'?'void-status':''}">${status}</td>
-<td>
-  <button onclick="editStudent('${s.id}')">Edit</button>
-  ${s.voided
-    ? `<button class="undo-void-btn" onclick="undoVoid('${s.id}')">↺ Undo Void</button>`
-    : `<button onclick="markPaid('${s.id}')">Paid</button>
-       <button class="void-btn" onclick="voidFee('${s.id}')">VOID</button>`
-  }
-  <button onclick="deleteStudent('${s.id}')">Delete</button>
-</td>
-<td>${reminder}</td>
-<td>
-  <input type="text" id="remark_${s.id}" value="${s.remark||''}" placeholder="Add remark..."
-    style="padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:12px;width:130px;"
-    onblur="saveRemark('${s.id}',this.value)"
-    onkeydown="if(event.key==='Enter')this.blur()">
-</td>
-<td>${receipt}</td>
-</tr>`;
-
-    mobile.innerHTML += `
-<div class="mobile-card">
-  <h3>${s.name}</h3>
-  <div style="font-size:12px;color:#888;margin-top:-6px;margin-bottom:4px;">Due: ${dueFormatted}</div>
-  ${s.paid&&paidFormatted?`<div style="font-size:12px;color:#2e7d32;margin-bottom:4px;">✅ Paid: ${paidFormatted}</div>`:''}
-  ${status==='Overdue'?`<div style="font-size:12px;font-weight:bold;color:white;background:#c62828;padding:3px 10px;border-radius:5px;display:inline-block;margin-bottom:6px;">⚠ OVERDUE</div>`:''}
-  Course: ${s.course}<br>Fee: ${currency}${total}<br>
-  Status: <span class="${status==='Overdue'?'overdue':''}">${status}</span>
-  <br><br>
-  <button onclick="editStudent('${s.id}')">Edit</button>
-  ${s.voided
-    ? `<button class="undo-void-btn" onclick="undoVoid('${s.id}')">↺ Undo Void</button>`
-    : `<button onclick="markPaid('${s.id}')">Paid</button>
-       <button class="void-btn" onclick="voidFee('${s.id}')">VOID</button>`
-  }
-  <button onclick="deleteStudent('${s.id}')">Delete</button>
-  <br><br>${reminder}
-  <div style="margin-top:8px;">
-    <input type="text" id="remark_mob_${s.id}" value="${s.remark||''}" placeholder="Add remark..."
-      style="padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;"
-      onblur="saveRemark('${s.id}',this.value)"
-      onkeydown="if(event.key==='Enter')this.blur()">
-  </div>
-  ${receipt}
-</div>`;
-  });
-
-  document.getElementById('students').innerText  = 'Students: '+students.length;
-  document.getElementById('collected').innerText = 'Collected: '+currency+collected;
-  document.getElementById('pending').innerText   = 'Pending: '+currency+pending;
-  document.getElementById('overdue').innerText   = 'Overdue: '+overdueCount;
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='students.csv'; a.click();
 }
 
 // ── Dashboard filter ──
 function setDashFilter(filter){
-  window.dashFilter = filter;
-  ['students','collected','pending','overdue'].forEach(id=>document.getElementById(id).classList.remove('active-filter'));
-  let label = document.getElementById('filterLabel');
-  if(filter === 'all'){ label.classList.remove('visible'); return; }
-  const map = { paid:'Showing: Paid students', pending:'Showing: Pending students', overdue:'Showing: Overdue students' };
-  const cardMap = { paid:'collected', pending:'pending', overdue:'overdue' };
-  document.getElementById(cardMap[filter]).classList.add('active-filter');
-  label.textContent = map[filter] + ' — click any card to change filter';
-  label.classList.add('visible');
+  dashFilter=filter;
+  ['cardStudents','cardCollected','cardPending','cardOverdue'].forEach(function(id){
+    document.getElementById(id).classList.remove('active-filter');
+  });
+  var label=document.getElementById('filterLabel');
+  var cardMap={paid:'cardCollected',pending:'cardPending',overdue:'cardOverdue'};
+  if(filter==='all'){ label.classList.remove('visible'); }
+  else {
+    document.getElementById(cardMap[filter]).classList.add('active-filter');
+    var names={paid:'Paid',pending:'Pending',overdue:'Overdue'};
+    label.textContent='Showing: '+names[filter]+' students — click any card to reset';
+    label.classList.add('visible');
+  }
   render();
 }
 
-// ── Update all due dates ──
+// ── Render ──
+function render(){
+  var tbody=document.getElementById('tableBody');
+  var mobile=document.getElementById('mobileList');
+  if(!tbody||!mobile) return;
+  tbody.innerHTML=''; mobile.innerHTML='';
+
+  var query=(document.getElementById('searchInput').value||'').trim().toLowerCase();
+  var filtered=students.slice();
+  if(query) filtered=filtered.filter(function(s){ return s.name.toLowerCase().indexOf(query)>=0; });
+  if(dashFilter==='paid')    filtered=filtered.filter(function(s){ return s.paid&&!s.voided; });
+  if(dashFilter==='pending') filtered=filtered.filter(function(s){ return !s.paid&&!s.voided; });
+  if(dashFilter==='overdue') filtered=filtered.filter(function(s){ return !s.paid&&!s.voided&&new Date()>new Date(s.due); });
+
+  if(filtered.length===0){
+    var msg=query?'No student found matching "'+query+'"':'No students to show.';
+    tbody.innerHTML='<tr><td colspan="11" class="no-results">'+msg+'</td></tr>';
+    mobile.innerHTML='<div class="no-results">'+msg+'</div>';
+  }
+
+  var totalCollected=0,totalPending=0,overdueCount=0;
+  students.forEach(function(s){
+    if(s.voided) return;
+    var lf=(!s.paid&&new Date()>new Date(s.due))?lateFine:0;
+    if(!s.paid&&lf>0) overdueCount++;
+    if(s.paid) totalCollected+=safeFee(s.fee);
+    else       totalPending+=safeFee(s.fee)+lf;
+  });
+  document.getElementById('cardStudents').textContent  = 'Students: '+students.length;
+  document.getElementById('cardCollected').textContent = 'Collected: '+currency+totalCollected;
+  document.getElementById('cardPending').textContent   = 'Pending: '+currency+totalPending;
+  document.getElementById('cardOverdue').textContent   = 'Overdue: '+overdueCount;
+
+  filtered.forEach(function(s){
+    var today=new Date(), due=new Date(s.due);
+    var lf=0, status='Pending';
+    if(s.voided)       { status='Void'; }
+    else if(s.paid)    { status='Paid'; }
+    else if(today>due) { lf=lateFine; status='Overdue'; }
+    var total=s.voided?0:safeFee(s.fee)+lf;
+    var df=s.due?new Date(s.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+    var pf=s.paidDate?new Date(s.paidDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+
+    var badge='';
+    if(status==='Overdue') badge='<div style="font-size:11px;font-weight:bold;color:white;background:#c62828;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px;">OVERDUE</div>';
+    if(status==='Pending') badge='<div style="font-size:11px;color:#e65100;margin-top:2px;">Pending</div>';
+    if(status==='Void')    badge='<div style="font-size:11px;font-weight:bold;color:white;background:#7b1fa2;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px;">VOID</div>';
+    if(status==='Paid'&&pf) badge='<div style="font-size:11px;color:#2e7d32;margin-top:1px;">Paid: '+pf+'</div>';
+
+    var acts=s.voided
+      ? '<button class="undo-void-btn" onclick="undoVoid(\''+s.id+'\')">Undo Void</button>'
+      : '<button onclick="markPaid(\''+s.id+'\')">Paid</button><button class="void-btn" onclick="voidFee(\''+s.id+'\')">VOID</button>';
+
+    var rem=s.voided||s.paid
+      ? '<span class="disabled-btn">'+(s.voided?'Voided':'Paid')+'</span>'
+      : '<button onclick="sendReminder(\''+s.phone+'\',\''+s.name+'\','+total+')">Reminder</button>';
+
+    var rec=s.paid
+      ? '<button onclick="sendReceipt(\''+s.phone+'\',\''+s.name+'\','+total+',\''+(s.receiptNumber||'N/A')+'\',\''+(s.paidDate||'')+'\')">Resend</button>'
+      : '';
+
+    tbody.innerHTML+='<tr>'
+      +'<td><strong>'+s.name+'</strong><div style="font-size:11px;color:#888;">Due: '+df+'</div>'+badge+'</td>'
+      +'<td>'+s.phone+'</td><td>'+s.course+'</td>'
+      +'<td>'+currency+s.fee+'</td><td>'+currency+lf+'</td><td>'+currency+total+'</td>'
+      +'<td class="'+(status==='Overdue'?'overdue':status==='Void'?'void-status':'')+'">'+status+'</td>'
+      +'<td><button onclick="editStudent(\''+s.id+'\')">Edit</button>'+acts+'<button onclick="deleteStudent(\''+s.id+'\')">Delete</button></td>'
+      +'<td>'+rem+'</td>'
+      +'<td><input type="text" value="'+(s.remark||'')+'" placeholder="Remark" style="padding:5px;font-size:12px;width:120px;min-height:auto;" onblur="saveRemark(\''+s.id+'\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></td>'
+      +'<td>'+rec+'</td>'
+      +'</tr>';
+
+    mobile.innerHTML+='<div class="mobile-card">'
+      +'<h3>'+s.name+'</h3>'
+      +'<div style="font-size:12px;color:#888;margin-bottom:4px;">Due: '+df+'</div>'
+      +badge
+      +'<div style="margin:8px 0;">Course: '+s.course+'<br>Fee: '+currency+total+'</div>'
+      +'<button onclick="editStudent(\''+s.id+'\')">Edit</button>'+acts
+      +'<button onclick="deleteStudent(\''+s.id+'\')">Delete</button>'
+      +'<br><br>'+rem
+      +'<div style="margin-top:8px;"><input type="text" value="'+(s.remark||'')+'" placeholder="Add remark" style="padding:10px;font-size:14px;width:100%;" onblur="saveRemark(\''+s.id+'\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></div>'
+      +rec+'</div>';
+  });
+}
+
+// ── Update due dates ──
 function showUpdateDueModal(){
-  let today = new Date();
-  let y=today.getFullYear(), m=String(today.getMonth()+1).padStart(2,'0');
-  document.getElementById('bulkDueDate').value=`${y}-${m}-10`;
+  var today=new Date(), y=today.getFullYear(), m=String(today.getMonth()+1).padStart(2,'0');
+  document.getElementById('bulkDueDate').value=y+'-'+m+'-10';
   document.getElementById('updateDueModal').classList.add('active');
 }
 function closeUpdateDueModal(){ document.getElementById('updateDueModal').classList.remove('active'); }
-async function confirmUpdateDue(){
-  let newDue = document.getElementById('bulkDueDate').value;
-  if(!newDue){ alert('Please select a date'); return; }
-  let btn = document.querySelector('#updateDueModal .import-btn-green');
-  btn.disabled=true; btn.textContent='Updating…';
-  for(let s of students) await updateDoc(studentDoc(s.id),{ due:newDue });
-  closeUpdateDueModal();
-  alert(`✅ Due date updated for ${students.length} students!`);
-  loadStudents();
-  btn.disabled=false; btn.textContent='✅ Update All Students';
+function confirmUpdateDue(){
+  var newDue=document.getElementById('bulkDueDate').value;
+  if(!newDue){ alert('Please select a date.'); return; }
+  var btn=document.querySelector('#updateDueModal .green-btn');
+  btn.disabled=true; btn.textContent='Updating...';
+  var promises=students.map(function(s){
+    return db.collection('tenants').doc(tenantId).collection('students').doc(s.id).update({due:newDue});
+  });
+  Promise.all(promises).then(function(){
+    closeUpdateDueModal();
+    alert('Due date updated for '+students.length+' students!');
+    loadStudents();
+  }).catch(function(e){ alert('Error: '+e.message); })
+  .finally(function(){ btn.disabled=false; btn.textContent='Update All'; });
 }
 
-// ── Excel Import ──
-let importedRows=[];
+// ── Import ──
 function handleImport(event){
-  let file = event.target.files[0]; if(!file) return;
-  let reader = new FileReader();
-  reader.onload = function(e){
-    let data = new Uint8Array(e.target.result);
-    let wb = XLSX.read(data,{type:'array'});
-    let sheet = wb.Sheets[wb.SheetNames[0]];
-    let rows = XLSX.utils.sheet_to_json(sheet,{defval:''});
+  var file=event.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data=new Uint8Array(e.target.result);
+    var wb=XLSX.read(data,{type:'array'});
+    var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
     if(!rows.length){ alert('No data found.'); return; }
-
-    importedRows = rows.map(r=>{
-      let keys=Object.keys(r);
-      function find(kws){ let k=keys.find(k=>kws.some(kw=>k.toLowerCase().includes(kw))); return k?String(r[k]).trim():''; }
-      let phone=find(['phone','mobile','contact','number']);
-      let due=find(['due','date','deadline']);
-      if(due && !isNaN(due)){
-        let d=XLSX.SSF.parse_date_code(parseInt(due));
-        due=`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
-      }
-      return { name:find(['name','student']), phone:cleanPhone(phone||'0000000000'),
-               course:find(['course','class','subject']), fee:find(['fee','amount']), due, paid:false };
-    }).filter(r=>r.name);
-
-    if(!importedRows.length){ alert('Could not read student data.'); return; }
-
-    let html=`<table class="import-table"><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Course</th><th>Fee</th><th>Due</th></tr></thead><tbody>`;
-    importedRows.forEach((r,i)=>{ html+=`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.phone}</td><td>${r.course||'—'}</td><td>${currency}${r.fee||0}</td><td>${r.due||'—'}</td></tr>`; });
-    html+=`</tbody></table><p style="font-size:13px;color:#555"><strong>${importedRows.length} students</strong> ready to import.</p>`;
-
+    importedRows=rows.map(function(r){
+      var keys=Object.keys(r);
+      function find(kws){ var k=keys.find(function(k){ return kws.some(function(kw){ return k.toLowerCase().indexOf(kw)>=0; }); }); return k?String(r[k]).trim():''; }
+      var phone=find(['phone','mobile','contact','number']);
+      var due=find(['due','date','deadline']);
+      if(due&&!isNaN(due)){ var d=XLSX.SSF.parse_date_code(parseInt(due)); due=d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0'); }
+      return {name:find(['name','student']),phone:cleanPhone(phone||'0000000000'),course:find(['course','class','subject']),fee:find(['fee','amount']),due:due,paid:false};
+    }).filter(function(r){ return r.name; });
+    if(!importedRows.length){ alert('Could not read data.'); return; }
+    var html='<table class="import-table"><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Course</th><th>Fee</th><th>Due</th></tr></thead><tbody>';
+    importedRows.forEach(function(r,i){ html+='<tr><td>'+(i+1)+'</td><td>'+r.name+'</td><td>'+r.phone+'</td><td>'+(r.course||'—')+'</td><td>'+currency+(r.fee||0)+'</td><td>'+(r.due||'—')+'</td></tr>'; });
+    html+='</tbody></table><p style="font-size:13px;color:#555"><strong>'+importedRows.length+' students</strong> ready to import.</p>';
     document.getElementById('importPreview').innerHTML=html;
     document.getElementById('importModal').classList.add('active');
   };
@@ -842,72 +604,35 @@ function handleImport(event){
   event.target.value='';
 }
 function closeImportModal(){ document.getElementById('importModal').classList.remove('active'); importedRows=[]; }
-async function confirmImport(){
+function confirmImport(){
   if(!importedRows.length) return;
-  let btn=document.querySelector('#importModal .import-btn-green');
-  btn.disabled=true; btn.textContent='Importing…';
-  for(let s of importedRows) await addDoc(studentsCol(),s);
-  closeImportModal();
-  alert(`✅ Imported ${importedRows.length} students!`);
-  loadStudents();
+  var btn=document.querySelector('#importModal .green-btn');
+  btn.disabled=true; btn.textContent='Importing...';
+  var promises=importedRows.map(function(s){
+    return db.collection('tenants').doc(tenantId).collection('students').add(s);
+  });
+  Promise.all(promises).then(function(){
+    closeImportModal();
+    alert('Imported '+importedRows.length+' students!');
+    loadStudents();
+  }).catch(function(e){ alert('Import error: '+e.message); })
+  .finally(function(){ btn.disabled=false; btn.textContent='Import'; });
 }
 
-// ── Toast ──
-function showToast(msg){
-  let t=document.getElementById('toast');
-  if(!t){
-    t=document.createElement('div'); t.id='toast';
-    t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#2d89ef;color:white;padding:10px 22px;border-radius:30px;font-size:13px;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;';
-    document.body.appendChild(t);
-  }
-  t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
-  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },2000);
+// ── Logout ──
+function doLogout(){
+  auth.signOut().then(function(){
+    sessionStorage.clear();
+    window.location.href='demo-login.html';
+  });
 }
 
-async function logout(){
-  await signOut(auth);
-  sessionStorage.clear();
-  window.location.href='demo-login.html';
-}
-
-// Expose all functions to global scope immediately
-// (functions themselves are safe to expose — they guard internally via tenantId check)
-window.addStudent=addStudent;
-
-// Attach Add Student button via event listener (more reliable than inline onclick)
-document.addEventListener('DOMContentLoaded', () => {
-  let btn = document.getElementById('addStudentBtn');
-  if(btn) btn.addEventListener('click', addStudent);
-});
-window.markPaid=markPaid;
-window.deleteStudent=deleteStudent;
-window.editStudent=editStudent;
-window.sendReminder=sendReminder;
-window.sendReminders=sendReminders;
-window.sendReceipt=sendReceipt;
-window.downloadReport=downloadReport;
-window.render=render;
-window.logout=logout;
-window.setDashFilter=setDashFilter;
-window.saveRemark=saveRemark;
-window.voidFee=voidFee;
-window.undoVoid=undoVoid;
-window.showUpdateDueModal=showUpdateDueModal;
-window.closeUpdateDueModal=closeUpdateDueModal;
-window.confirmUpdateDue=confirmUpdateDue;
-window.handleImport=handleImport;
-window.closeImportModal=closeImportModal;
-window.confirmImport=confirmImport;
-
-</script>
-
-<script>
+// ── Service Worker ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/fee-manager-demo/sw.js')
-    .then(()=>console.log('SW registered'))
-    .catch(e=>console.log('SW error',e));
+    .then(function(){ console.log('SW registered'); })
+    .catch(function(e){ console.log('SW error',e); });
 }
 </script>
-
 </body>
 </html>
