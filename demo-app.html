@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Fee Manager</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fee Manager">
+<meta name="theme-color" content="#2d89ef">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="https://placehold.co/192x192/2d89ef/ffffff?text=FM">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 
@@ -155,9 +162,67 @@ th,td{padding:8px;border-bottom:1px solid #ddd;}
 .no-results{text-align:center;color:#999;padding:20px;font-style:italic;}
 
 @media(max-width:700px){
+  body{ padding:10px; }
+
   table{display:none}
   .mobile-list{display:block}
+
   .logo-row{flex-direction:column;text-align:center;}
+
+  /* Header tighter on mobile */
+  .header{ padding:12px 14px; }
+  .title-block h1{ font-size:17px; }
+  .title-block h2{ font-size:13px; }
+  .logo-row img{ height:50px; }
+
+  /* Dashboard cards 2x2 grid on mobile */
+  .dashboard{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .card{ padding:12px 8px; font-size:13px; }
+
+  /* Full width buttons, bigger tap targets */
+  button{ padding:13px 10px; font-size:15px; min-height:48px; }
+
+  /* Inputs easier to tap */
+  input[type=text],input[type=number],input[type=date],input[type=email],input[type=password]{
+    font-size:16px; /* prevents iOS zoom on focus */
+    min-height:48px;
+    padding:12px;
+  }
+
+  /* Mobile cards */
+  .mobile-card{ padding:16px; margin-bottom:12px; }
+  .mobile-card h3{ font-size:17px; margin-bottom:4px; }
+  .mobile-card button{ margin:4px 0; min-height:44px; }
+
+  /* Modal full screen on mobile */
+  .modal{
+    width:95%;
+    max-height:90vh;
+    padding:18px;
+    border-radius:16px;
+  }
+
+  /* Search bar */
+  .search-wrapper input{ font-size:16px; min-height:48px; }
+
+  /* Reminder button */
+  .reminder-btn{ font-size:14px; padding:13px; }
+
+  /* Container padding */
+  .container{ padding:14px; }
+}
+
+/* Safe area for iPhone notch/home bar */
+@supports(padding: max(0px)){
+  body{
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
 }
 
 .footer{text-align:center;margin-top:20px;font-size:13px;color:#888;}
@@ -788,5 +853,14 @@ window.confirmUpdateDue=confirmUpdateDue;
 window.handleImport=handleImport; window.closeImportModal=closeImportModal; window.confirmImport=confirmImport;
 
 </script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/fee-manager-demo/sw.js')
+    .then(()=>console.log('SW registered'))
+    .catch(e=>console.log('SW error',e));
+}
+</script>
+
 </body>
 </html>
