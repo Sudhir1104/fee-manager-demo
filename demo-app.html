@@ -21,6 +21,17 @@
 
 <style>
 *{box-sizing:border-box;}
+
+/* Force date inputs to never overflow on any device */
+input[type=date]{
+  display:block;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  -webkit-appearance:none;
+  appearance:none;
+}
 body{font-family:'DM Sans',Arial,sans-serif;background:#eef2f7;margin:0;padding:20px;}
 
 .expiry-banner{border-radius:10px;padding:13px 18px;margin-bottom:16px;font-size:13px;font-weight:500;display:none;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -121,9 +132,10 @@ th{background:#f5f5f5;font-weight:600;}
   input[type=date]{
     width:100%!important;
     max-width:100%!important;
-    padding-left:160px!important;
+    min-width:0!important;
     box-sizing:border-box!important;
-    overflow:hidden;
+    -webkit-appearance:none;
+    appearance:none;
   }
   .mobile-card{padding:16px;}
   .mobile-card button{margin:4px 0;min-height:44px;}
@@ -173,12 +185,10 @@ th{background:#f5f5f5;font-weight:600;}
   <input type="tel"    id="inp_phone"  placeholder="Parent Phone (10 digits)">
   <input type="text"   id="inp_course" placeholder="Course">
   <input type="number" id="inp_fee"    placeholder="Fee Amount">
-  <div style="position:relative;width:100%;margin:5px 0;">
-    <label for="inp_due" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none;z-index:1;white-space:nowrap;">&#128197; Calendar Due Date</label>
+  <div style="width:100%;margin:5px 0;overflow:hidden;">
+    <label style="display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px;padding-left:2px;">&#128197; Calendar Due Date</label>
     <input type="date" id="inp_due"
-      style="padding-left:160px;width:100%;min-height:48px;font-size:15px;box-sizing:border-box;"
-      onfocus="this.previousElementSibling.style.opacity='0'"
-      onblur="if(!this.value)this.previousElementSibling.style.opacity='1'">
+      style="display:block;width:100%;max-width:100%;box-sizing:border-box;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:6px;margin:0;-webkit-appearance:none;appearance:none;">
   </div>
   <button id="btnAdd" onclick="addStudent()">&#10133; Add Student</button>
 
